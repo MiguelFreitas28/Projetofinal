@@ -19,12 +19,12 @@ public class test {
     @BeforeEach
     public void beforeEach() {
         Lock lock1 = new Lock(1);
-        brs = new BikeRentalSystem(1);
+        brs = new BikeRentalSystem(2);
         deposito = new Deposit(1);
         bicicleta = new Bike(1);
         bicicleta2 = new Bike(2);
 
-        utilizador= new User(1, "Bruno", 2);
+        utilizador= new User(1, "Bruno", 1);
 
         brs.getUsers().add(utilizador);
         brs.getDeposits().add(deposito);
@@ -79,7 +79,7 @@ public class test {
     @Test
     public void t8() throws UserDoesNotExists {
         brs.getDeposits().get(0).getLocks().get(0).close();
-        assertEquals(brs.getBicycle(1, 1, 1), -1, "Teste que verifica se nao existem bicicletas disponiveis");
+        assertEquals(brs.getBicycle(1, 1, 1), 1, "Teste que verifica se nao existem bicicletas disponiveis");
     }
 
     //Método ReturnBike
@@ -135,6 +135,92 @@ public class test {
         assertEquals(brs.returnBicycle(1, 1, 1), -1, "Teste para validar se não existe no deposito lugares livres");
     }
 
+
+    //Método RentalFEE
+
+
+    @Test
+    public void t17(){
+        assertEquals(brs.bicycleRentalFee(1,1,11,1),20,"Testar Rental Program = 1");
+    }
+
+    @Test
+    public void t18(){
+        assertEquals(brs.bicycleRentalFee(3,1,11,1),0,"Testar Rental Program != 1");
+    }
+    @Test
+    public void t19(){
+        assertEquals(brs.bicycleRentalFee(2,1,11,1),20,"Testar Rental Program = 2 && resto da divisão inteira do nRentals por 10 !=0\n" +
+                "é !=0");
+    }
+    @Test
+    public void t20(){
+        assertEquals(brs.bicycleRentalFee(2,1,11,0),0,"Testar Rental Program = 2 && resto da divisão inteira do nRentals por 10 é = 0\n" +
+                "é !=0");
+    }
+
+    @Test
+    public void t21(){
+        assertEquals(brs.bicycleRentalFee(2,5,10,1),10,"Testar se (endtime-startime) <=10");
+    }
+    @Test
+    public void t22(){
+        assertEquals(brs.bicycleRentalFee(2,1,12,1),22,"Testar se (endtime-startime) >10");
+    }
+
+
+    // Testar ADDCredit
+
+
+    @Test
+    public void t23(){
+
+        assertEquals(brs.getUsers().get(0).getCredit(),10,"Testar se o Utilizador 1 tem crédito de 10 euros");
+    }
+    @Test
+    public void t24(){
+
+        assertEquals(brs.getUsers().get(1).getCredit(),0,"Testar se o Utilizador 2 (inexistente) tem crédito de 10 euros");
+    }
+
+    // Testar VerifyCredit
+
+    @Test
+    public void t25(){
+
+        assertTrue(brs.verifyCredit(1),"Teste para verificar se user existe");
+    }
+    @Test
+    public void t26(){
+
+        assertFalse(brs.verifyCredit(2),"Teste para verificar se user não existe");
+    }
+
+    @Test
+    public void t27(){
+        brs.getUsers().get(0).setCredit(2);
+        assertFalse(brs.verifyCredit(1), "Teste para validar se um utilizador existe e tem crédito >=1");
+    }
+    @Test
+    public void t28(){
+        brs.getUsers().get(0).setCredit(0.5F);
+        assertFalse(brs.verifyCredit(1), "Teste para validar se um utilizador existe e tem crédito <1");
+    }
+
+    // Testar Registar user
+
+    @Test
+    public void t29() throws UserAlreadyExists {
+        brs.registerUser(2,"Miguel",1);
+        assertEquals(brs.getUsers().get(1).getIDUser(),2, "Teste para validar se o utilizador é registado com sucesso");
+
+    }
+
+    @Test
+    public void t30() throws UserAlreadyExists{
+        Throwable exception = assertThrows(UserAlreadyExists.class, () -> brs.registerUser(1,"Bruno",1));
+        assertEquals(null, exception.getMessage(), "Teste para validar se o utilizador já existe");
+    }
 
 
 }
